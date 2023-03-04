@@ -1,0 +1,16 @@
+version: v1
+
+plugins:
+  - name: go
+    out: pkg/user-service-api
+    opt:
+      - paths=import
+  - name: go-grpc
+    out: pkg/user-service-api
+    opt:
+      - paths=import
+  - name: validate
+    out: pkg/user-service-api
+    opt:
+      - lang=go
+    strategy: directory

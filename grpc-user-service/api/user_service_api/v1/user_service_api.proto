@@ -1,0 +1,51 @@
+syntax="proto3";
+
+package user_service_api.v1;
+
+import "api/validate/validate.proto";
+
+option go_package = "github.com/levelord1311/grpc-microservices/grpc-user-service/pkg/user-service-api;pb_user_service";
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc DescribeUser(DescribeUserRequest) returns (DescribeUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse);
+}
+
+message User {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  string username = 2 [(validate.rules).string.min_len = 2];
+  string email = 3 [(validate.rules).string.email = true];
+  string name = 4 [(validate.rules).string.min_len = 1];
+  string surname = 5 [(validate.rules).string.min_len = 1];
+}
+
+message CreateUserRequest {
+  string username = 1 [(validate.rules).string.min_len = 2];
+  string email = 2 [(validate.rules).string.email = true];
+  string password = 3 [(validate.rules).string.min_len = 6];
+  optional string name = 4 [(validate.rules).string.min_len = 1];
+  optional string surname = 5 [(validate.rules).string.min_len = 1];
+}
+message CreateUserResponse {
+  User user = 1;
+}
+message DescribeUserRequest {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+message DescribeUserResponse {
+  User user = 1;
+}
+message ListUsersRequest {
+  repeated uint64 user_ids = 1; //repeated rule should be used
+}
+message ListUsersResponse {
+  repeated User users = 1;
+}
+message RemoveUserRequest {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+message RemoveUserResponse {
+  bool result = 1;
+}

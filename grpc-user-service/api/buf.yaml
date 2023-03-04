@@ -1,0 +1,14 @@
+version: v1
+
+build:
+
+lint:
+  use:
+    - DEFAULT
+  ignore:
+    - validate
+    - google
+
+breaking:
+  use:
+    - FILE
