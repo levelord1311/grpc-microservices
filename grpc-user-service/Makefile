@@ -22,7 +22,7 @@ run:
 #-----------------------------------------------------------
 
 .PHONY: gen
-gen: clean .generate-install-buf .generate-go .generate-finalize-go
+gen: .generate-install-buf .generate-go .generate-finalize-go
 
 .generate-install-buf:
 	@ command -v buf 2>&1 > /dev/null || (echo "Install buf" && \
@@ -57,7 +57,6 @@ format:
 
 .PHONY: clean
 clean:
-	rm -rf pkg || true
 	rm -rf bin || true
 
 

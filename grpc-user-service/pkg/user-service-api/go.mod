@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/envoyproxy/protoc-gen-validate v0.9.1
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.29.1
 )
 
 require (

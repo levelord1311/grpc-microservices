@@ -1,5 +1,10 @@
 .idea
 
+relay
+postgres-data
+
+kafka_data
+
 bin
 
 config.yml

@@ -112,6 +112,35 @@ func (m *User) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if all {
+		switch v := interface{}(m.GetCreated()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "Created",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "Created",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreated()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UserValidationError{
+				field:  "Created",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return UserMultiError(errors)
 	}
@@ -477,34 +506,7 @@ func (m *CreateUserResponse) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetUser()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CreateUserResponseValidationError{
-					field:  "User",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CreateUserResponseValidationError{
-					field:  "User",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUser()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateUserResponseValidationError{
-				field:  "User",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Id
 
 	if len(errors) > 0 {
 		return CreateUserResponseMultiError(errors)
@@ -851,6 +853,28 @@ func (m *ListUsersRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if m.GetLimit() <= 0 {
+		err := ListUsersRequestValidationError{
+			field:  "Limit",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCursorId() <= 0 {
+		err := ListUsersRequestValidationError{
+			field:  "CursorId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ListUsersRequestMultiError(errors)
@@ -1200,8 +1224,6 @@ func (m *RemoveUserResponse) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Result
 
 	if len(errors) > 0 {
 		return RemoveUserResponseMultiError(errors)

@@ -26,12 +26,12 @@ ARG GITHUB_PATH=github.com/levelord1311/grpc-microservices/grpc-user-service
 COPY --from=builder /home/${GITHUB_PATH}/bin/app .
 COPY --from=builder /home/${GITHUB_PATH}/config.yml .
 #COPY --from=builder /home/${GITHUB_PATH}/swagger ./swagger
-#COPY --from=builder /home/${GITHUB_PATH}/migrations/ ./migragtions
+COPY --from=builder /home/${GITHUB_PATH}/migrations/ ./migragtions
 
 RUN chown root:root app
 
 EXPOSE 50051
-EXPOSE 8080
+EXPOSE 6001
 EXPOSE 9100
 
 CMD ["./app"]

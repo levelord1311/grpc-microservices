@@ -3,9 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/repo"
-	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/service"
+	user_service "github.com/levelord1311/grpc-microservices/grpc-user-service/internal/app/user-service"
+	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/service/user"
 	pb "github.com/levelord1311/grpc-microservices/grpc-user-service/pkg/user-service-api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -18,19 +17,20 @@ import (
 )
 
 type GrpcServer struct {
-	db        *sqlx.DB
-	batchSize uint64
+	userService *user.Service
 }
 
-func NewGrpcServer() *GrpcServer {
-	return &GrpcServer{}
+func NewGrpcServer(userService *user.Service) *GrpcServer {
+	return &GrpcServer{
+		userService: userService,
+	}
 }
 
 func (s *GrpcServer) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	grpcAddr := "127.0.0.1:8080"
+	grpcAddr := "127.0.0.1:6002"
 
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
@@ -47,9 +47,7 @@ func (s *GrpcServer) Start() error {
 		}),
 	)
 
-	r := repo.NewRepo(s.db, s.batchSize)
-
-	pb.RegisterUserServiceServer(grpcServer, service.NewUserService(r))
+	pb.RegisterUserServiceServer(grpcServer, user_service.NewUserService(*s.userService))
 
 	go func() {
 		if err := grpcServer.Serve(l); err != nil {
