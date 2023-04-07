@@ -1,6 +1,5 @@
 .idea
 
-relay
 postgres-data
 
 kafka_data

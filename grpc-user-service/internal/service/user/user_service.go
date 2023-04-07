@@ -23,7 +23,11 @@ func NewService(repo Repo) *Service {
 }
 
 func (s *Service) CreateUser(ctx context.Context, user *model.User) (uint64, error) {
-	return s.repo.CreateUser(ctx, user)
+	id, err := s.repo.CreateUser(ctx, user)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 func (s *Service) DescribeUser(ctx context.Context, id uint64) (*model.User, error) {

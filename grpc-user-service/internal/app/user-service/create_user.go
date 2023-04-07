@@ -15,8 +15,9 @@ func (i *Implementation) CreateUser(
 	if err := req.Validate(); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+	user := reqToUser(req)
 
-	id, err := i.service.CreateUser(ctx, &model.User{})
+	id, err := i.service.CreateUser(ctx, user)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -24,4 +25,11 @@ func (i *Implementation) CreateUser(
 	return &pb.CreateUserResponse{
 		Id: id,
 	}, nil
+}
+
+func reqToUser(req *pb.CreateUserRequest) *model.User {
+	return &model.User{
+		Username: req.Username,
+		Email:    req.Email,
+	}
 }

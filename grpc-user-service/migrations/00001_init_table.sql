@@ -11,4 +11,4 @@ CREATE TABLE users (
 );
 
 -- +goose Down
-DROP TABLE users_events;
+DROP TABLE users;

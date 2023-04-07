@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	user_service "github.com/levelord1311/grpc-microservices/grpc-user-service/internal/app/user-service"
+	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/relay"
 	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/service/user"
 	pb "github.com/levelord1311/grpc-microservices/grpc-user-service/pkg/user-service-api"
 	"google.golang.org/grpc"
@@ -18,11 +19,13 @@ import (
 
 type GrpcServer struct {
 	userService *user.Service
+	relay       *relay.Relay
 }
 
-func NewGrpcServer(userService *user.Service) *GrpcServer {
+func NewGrpcServer(userService *user.Service, relay *relay.Relay) *GrpcServer {
 	return &GrpcServer{
 		userService: userService,
+		relay:       relay,
 	}
 }
 
@@ -37,6 +40,8 @@ func (s *GrpcServer) Start() error {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 	defer l.Close()
+
+	s.relay.Start()
 
 	grpcServer := grpc.NewServer(
 		grpc.KeepaliveParams(keepalive.ServerParameters{
@@ -55,6 +60,8 @@ func (s *GrpcServer) Start() error {
 		}
 	}()
 
+	log.Println("Server started successfully")
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
@@ -65,6 +72,7 @@ func (s *GrpcServer) Start() error {
 		log.Printf("ctx.Done: %v", done)
 	}
 
+	s.relay.Close()
 	grpcServer.GracefulStop()
 	log.Println("grpcServer is shut down correctly")
 	return nil

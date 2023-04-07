@@ -9,21 +9,20 @@ type User struct {
 }
 
 type UserEvent struct {
-	ID      uint64      `db:"id"`
-	userID  uint64      `db:"user_id"`
-	Type    EventType   `db:"event_type"`
-	Status  EventStatus `db:"status"`
-	Payload []byte      `db:"payload"`
+	ID      uint64    `db:"id"`
+	UserID  uint64    `db:"user_id"`
+	Type    EventType `db:"event_type"`
+	Payload []byte    `db:"payload"`
+}
+
+type UserEvents struct {
+	UserEvent
 }
 
 type EventType string
-type EventStatus string
 
 const (
 	Created EventType = "created"
 	Updated EventType = "updated"
 	Removed EventType = "removed"
-
-	Locked    EventStatus = "locked"
-	Processed EventStatus = "processed"
 )

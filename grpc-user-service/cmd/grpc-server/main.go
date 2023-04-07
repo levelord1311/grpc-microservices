@@ -5,9 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/config"
+	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/relay"
+	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/relay/producer/kafka"
+	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/repo"
 	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/server"
 	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/service/user"
-	"github.com/levelord1311/grpc-microservices/grpc-user-service/internal/service/user/repo"
 	"github.com/levelord1311/grpc-microservices/grpc-user-service/pkg/database"
 	"github.com/pressly/goose/v3"
 	"log"
@@ -41,10 +43,23 @@ func main() {
 		}
 	}
 
-	r := repo.NewRepo(db, batchSize)
+	r := repo.NewRepo(db)
 	userService := user.NewService(r)
 
-	s := server.NewGrpcServer(userService)
+	eventSender, err := kafka.NewSender(cfg.Relay.Brokers)
+	if err != nil {
+		log.Fatal("failed to initialize eventSender:", err)
+	}
+
+	cfg.Relay.SetEventRepo(r)
+	cfg.Relay.SetEventSender(eventSender)
+
+	rel, err := relay.NewRelay(&cfg.Relay)
+	if err != nil {
+		log.Fatal("failed to initialize relay:", err)
+	}
+
+	s := server.NewGrpcServer(userService, rel)
 	if err := s.Start(); err != nil {
 		log.Fatal("Failed to create gRPC server", err)
 	}

@@ -5,6 +5,7 @@ import (
 	pb "github.com/levelord1311/grpc-microservices/grpc-user-service/pkg/user-service-api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log"
 )
 
 func (i *Implementation) RemoveUser(
@@ -17,6 +18,7 @@ func (i *Implementation) RemoveUser(
 
 	err := i.service.RemoveUser(ctx, req.GetId())
 	if err != nil {
+		log.Println("RemoveUser() error:", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

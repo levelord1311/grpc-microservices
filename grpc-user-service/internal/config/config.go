@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Database Database `yaml:"database"`
+	Relay    Relay    `yaml:"relay"`
 }
 
 var cfg *Config
